@@ -21,6 +21,30 @@ a:active {
   color: #DD4B39;
 }
 
+/* Cover for Submission */
+.overlay {
+  background-color: rgba(204, 204, 204, 0.6);
+  display: none;
+  height: 100%;
+  left: 0px;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+  z-index: 100;
+}
+
+.submission {
+  background-color: #F9EDBE;
+  color: #000000;
+  font-family: arial;
+  font-size: 13px;
+  font-weight: bold;
+  left: 500px;
+  padding: 10px;
+  position: fixed;
+  top: 20px;
+}
+
 /* HTML Content */
 .content {
   margin-bottom: 20px;
@@ -108,14 +132,12 @@ a:active {
   font-size: 11px;
   height: 27px;
   margin-top: 10px;
-  min-width: 80px;
+  min-width: 87px;
 }
 
 .submit-button {
-  display: inline;
-  float: right;
   margin-right: 0px;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .blue-button {
@@ -145,7 +167,7 @@ a:active {
 }
 
 .lesson-button {
-  margin-left: 568px;
+  margin-left: 564px;
 }
 
 /* Lesson */
@@ -180,6 +202,7 @@ code {
   border-radius: 4px;
   font-family: monospace;
   padding: 2px;
+  white-space: pre-wrap;
 }
 
 /* Inventory Area */
@@ -222,43 +245,100 @@ code {
   margin: 0px;
 }
 
-/* URL input */
-.url {
+/* The input boxes */
+.input{
   background-color: white;
   border: 1px solid black;
   box-shadow: 4px 4px 8px #CCC;
   -moz-box-shadow: 4px 4px 8px #CCC;
   -webkit-box-shadow: 4px 4px 8px #CCC;
   color: black;
-  display: inline-block;
+  display: block;
   font-family: monospace;
   font-size: 13px;
   height: auto;
   line-height: 1.5;
-  margin-top: 20px;
   min-height: 21px;
   overflow-y: hidden;
   resize: none;
-  width: 555px;
+  width: 645px;
   word-wrap: break-word;
 }
 
-.url.alert {
+.input:disabled {
+  background-color: #EEEEEE;
+  opacity: 0.5;
+}
+
+.input-label {
+  color: black;
+  font-family: arial;
+  font-size: 13px;
+  font-weight: bold;
+  margin-top: 20px;
+  margin-bottom: 5px;
+  padding-left: 0px;
+}
+
+.url {
+  margin-top: 20px; 
+}
+
+.url .input-label {
+  margin-top: 0px;
+}
+
+.url .input {
+  min-height: 21px;
+}
+
+.alert {
   border-color: #DD4B39;
 }
 
-.hidden-url-element {
+.hidden-input {
   display: none;
   font-family: monospace;
   font-size: 13px;
   height: auto;
   line-height: 1.5;
-  min-height: 21px;
   overflow-y: hidden;
-  resize: none;
   white-space: pre-wrap;
-  width: 555px;
+  width: 647px;
   word-wrap: break-word;
+}
+
+.url .hidden-input {
+  min-height: 21px;
+}
+
+.header .input {
+  background-color: #EEEEEE;
+  opacity: 0.5;
+  white-space: pre;
+  width: 650px;
+}
+
+.body .input {
+  min-height: 200px;
+}
+
+.body .hidden-input {
+  min-height: 200px;
+}
+
+/* Project List Dropdown */
+.project-list {
+  background-clip: padding-box; /* for IE9+, Firefox 4+, Opera, Chrome */
+  background-color: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+  height: 40px;
+  margin: 10px;
+  margin-bottom: 0px;
+  padding: 8px;
+  -webkit-background-clip: padding-box; /* for Safari */
+  width: 300px;
 }
 
 /* Success Ribbon */
@@ -300,7 +380,7 @@ code {
   margin-top: 20px;
 }
 
-.response-header {
+.response-label {
   background-color: #CCCCCC;
   border-bottom: 1px solid #999999;
   color: black;
@@ -331,7 +411,7 @@ img[alt=introduction-cat-image], img[alt=finish-cat-image] {
 }
 
 /* Table image */
-img[alt=table] {
+img[alt=table], img[alt=url-structure], img[alt=query-structure] {
   display: block;
   width: 650px;
 }
