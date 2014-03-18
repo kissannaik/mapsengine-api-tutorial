@@ -769,10 +769,8 @@ function makeChaptersAndLessons(urlInput, bodyInput) {
               callback: function(jsonBody) {
                 var list = $('.project-list')
                 list.empty();
-                // Sort the projects by name.
-                jsonBody.projects.sort(function(p1, p2) {
-                  return (p1.name < p2.name) ? -1 : 1;
-                });
+                // Sort the projects by name, to keep the list stable.
+                jsonBody = sortProjectsList(jsonBody);
                 jsonBody.projects.forEach(function(project) {
                   var listItem = $('<option>').attr('value', project.id)
                       .text(project.name);
@@ -1474,4 +1472,16 @@ function checkCreateFeatures(input) {
       });
     }
   });
+}
+
+/** Sort the projects in a projects list resource. */
+function sortProjectsList(jsonBody) {
+  // Make a copy of the array of projects.
+  var projects = jsonBody.projects.slice();
+  // Sort the array (in place).
+  projects.sort(function(p1, p2) {
+    return (p1.name < p2.name) ? -1 : 1;
+  });
+  // NOTE(stephenfarrar): "projects" is the only key in the jsonBody.
+  return {projects: projects};
 }
