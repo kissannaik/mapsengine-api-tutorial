@@ -789,7 +789,7 @@ function makeChaptersAndLessons(urlInput, bodyInput) {
       }), 
       new Lesson('lesson8-listprojects', {
         title: 'List Projects',
-        checkAnswer: checkCorrectness,
+        checkAnswer: checkProjectsList,
         activeInput: urlInput,
         inactiveInput: bodyInput,
         header: HEADER_FOR_GET,
@@ -1379,6 +1379,44 @@ function storeProjectID() {
     this.displayErrorMessage('You need to select a project from the dropdown ' +
         'list. It may take a few seconds for new projects to appear.');
   }
+}
+
+/**
+ * Check whether the projects list is correct.
+ */
+function checkProjectsList(address) {
+  var me = this;
+  // Get the response with the correct URL.
+  $.ajax({
+    url: me.testingURL,
+    headers: me.header,
+    dataType: 'json',
+    success: function(resource) {
+      // Get the response with users's input.
+      $.ajax({
+        url: address,
+        headers: me.header,
+        dataType: 'json',
+        jsonp: false,
+        success: function(resource2) {
+          var resourceString = JSON.stringify(resource2, null, 2);
+          $('.response-content').text(resourceString);
+          // If the response is the correct response, then the user is right.
+          var expected = JSON.stringify(sortProjectsList(resource));
+          var actual = JSON.stringify(sortProjectsList(resource2));
+          if (expected == actual) {
+            me.displaySuccessMessage();
+          } else {
+            me.displayErrorMessage('Be sure to read the instructions ' +
+                'carefully and complete the exercise requirements.');
+          }
+        },
+        error: function(response) {
+          handleErrorResponse(response, address);
+        }
+      });
+    }
+  });
 }
 
 /**
