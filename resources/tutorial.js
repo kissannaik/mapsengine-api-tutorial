@@ -970,7 +970,6 @@ function setNextLesson() {
 /**
  * Object to manage tasks that need completing before the page is displayed.
  */
-var tasksList;
 function newTasksList(onFinished) {
   var me = {};
   var tasks = {};
@@ -985,21 +984,21 @@ function newTasksList(onFinished) {
   };
   return me;
 }
+var tasksList = newTasksList(loadState);
+
+// Refresh the user's authentication data.
+// refreshAuth() is called by client.js when it finishes loading.
+tasksList.add('check-signin');
+var refreshAuth = makeLogin(false, {
+  complete: function() {
+    tasksList.remove('check-signin');
+  }
+});
 
 /**
  * Function executed when the window is loading.
  */
 $(window).load(function() {
-  tasksList = newTasksList(loadState);
-
-  // Check whether the user is signed in.
-  tasksList.add('check-signin');
-  makeLogin(false, {
-    complete: function() {
-      tasksList.remove('check-signin');
-    }
-  })();
-
   // Create textarea objects and events associated with the input changes.
   var urlInput = new ResizingTextarea($('.url .input'), 
       $('.url .hidden-input'), {
