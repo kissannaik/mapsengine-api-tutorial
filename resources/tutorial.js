@@ -1311,26 +1311,25 @@ function checkCorrectness(address) {
 
 /**
  * Makes a login function.
- * The login function captures 'this', and calls the callbacks on the same
- * 'this' object.
- * TODO: Don't use 'this' like that.
+ * @param {boolean} popup Whether a popup should be shown.
+ * @param {{success: function(), error: function()}} resultHandler Object on
+ *     which to call either success or error, to report the login result.
  */
-function makeLogin(options) {
+function makeLogin(popup, resultHandler) {
   return function() {
     var me = this;
     gapi.auth.authorize({
-      // Don't think this is right.
       client_id: $('meta[name="google-signin-clientid"]').attr('content'),
       scope: $('meta[name="google-signin-scope"]').attr('content'),
-      immediate: false
+      immediate: !popup
     }, function(authResult) {
       if (authResult && authResult['status']['signed_in']) {
         // The user is signed in and has authorised the application.
         // We set a global variable with their authorization token.
         userAuthorization = authResult['access_token'];
-        options.success.call(me);
+        resultHandler.success();
       } else {
-        options.error.call(me);
+        resultHandler.error();
       }
     });
   };
@@ -1340,22 +1339,25 @@ function makeLogin(options) {
  * Login and authorization submit function.
  * Called on the lesson 6 object.
  */
-var authorizeUser = makeLogin({
-  success: function() {
-    $('.request').hide();
-    this.displaySuccessMessage();
-  },
-  error: function() {
-    this.displayErrorMessage('You need to grant this tutorial permissions ' +
-        'if you wish to continue.');
-  }
-});
+var authorizeUser = function() {
+  var me = this;
+  makeLogin(true, {
+    success: function() {
+      $('.request').hide();
+      me.displaySuccessMessage();
+    },
+    error: function() {
+      me.displayErrorMessage('You need to grant this tutorial permissions ' +
+          'if you wish to continue.');
+    }
+  })();
+};
 
 /**
  * Function called on signin page only, for users who sign out of their
  * Google account.
  */
-var signinAndResume = makeLogin({
+var signinAndResume = makeLogin(true, {
   success: function() {
     signin.next.update();
   },
