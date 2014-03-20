@@ -970,6 +970,7 @@ function setNextLesson() {
 /**
  * Object to manage tasks that need completing before the page is displayed.
  */
+var tasksList;
 function newTasksList(onFinished) {
   var me = {};
   var tasks = {};
@@ -985,12 +986,20 @@ function newTasksList(onFinished) {
   return me;
 }
 
-var tasksList = newTasksList(loadState);
-
 /**
  * Function executed when the window is loading.
  */
 $(window).load(function() {
+  tasksList = newTasksList(loadState);
+
+  // Check whether the user is signed in.
+  tasksList.add('check-signin');
+  makeLogin(false, {
+    complete: function() {
+      tasksList.remove('check-signin');
+    }
+  })();
+
   // Create textarea objects and events associated with the input changes.
   var urlInput = new ResizingTextarea($('.url .input'), 
       $('.url .hidden-input'), {
@@ -1312,8 +1321,11 @@ function checkCorrectness(address) {
 /**
  * Makes a login function.
  * @param {boolean} popup Whether a popup should be shown.
- * @param {{success: function(), error: function()}} resultHandler Object on
- *     which to call either success or error, to report the login result.
+ * @param {{success: ?function(),
+ *          error: ?function(),
+ *          complete: ?function()}} resultHandler
+ *     Object on which to call either success() or error(), to report the login
+ *     result, followed by complete().
  */
 function makeLogin(popup, resultHandler) {
   return function() {
@@ -1327,10 +1339,11 @@ function makeLogin(popup, resultHandler) {
         // The user is signed in and has authorised the application.
         // We set a global variable with their authorization token.
         userAuthorization = authResult['access_token'];
-        resultHandler.success();
+        resultHandler.success && resultHandler.success();
       } else {
-        resultHandler.error();
+        resultHandler.error && resultHandler.error();
       }
+      resultHandler.complete && resultHandler.complete();
     });
   };
 }
