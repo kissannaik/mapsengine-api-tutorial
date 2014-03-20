@@ -970,7 +970,8 @@ function setNextLesson() {
 /**
  * Object to manage tasks that need completing before the page is displayed.
  */
-function newTasksList(firstTask, onFinished) {
+var tasksList;
+function newTasksList(onFinished) {
   var me = {};
   var tasks = {};
   me.add = function(task) {
@@ -982,16 +983,23 @@ function newTasksList(firstTask, onFinished) {
       onFinished();
     }
   };
-  me.add(firstTask);
   return me;
 }
-
-var tasksList = newTasksList('callback', loadState);
 
 /**
  * Function executed when the window is loading.
  */
 $(window).load(function() {
+  tasksList = newTasksList(loadState);
+
+  // Check whether the user is signed in.
+  tasksList.add('check-signin');
+  makeLogin(false, {
+    complete: function() {
+      tasksList.remove('check-signin');
+    }
+  })();
+
   // Create textarea objects and events associated with the input changes.
   var urlInput = new ResizingTextarea($('.url .input'), 
       $('.url .hidden-input'), {
@@ -1035,45 +1043,6 @@ $(window).load(function() {
     });
   });
 });
-
-/**
- * Page-level callback to check if a user has an OAuth 2.0 token
- */
-function checkIfUserIsAuthorized(authResult) {
-  // The first time the callback is called, on page load, userAuthorization
-  // has no value.
-  var removeTask = false;
-  if (userAuthorization == null) {
-    removeTask = true;
-  }
-  if (authResult['status']['signed_in']) {
-    // The user is signed in and has authorised the application.
-    // We set a global variable with their authorization token.
-    userAuthorization = authResult['access_token'];
-  } else {
-    userAuthorization = false;
-  }
-  if (removeTask) {
-    tasksList.remove('callback');
-  }
-}
-
-/**
- * Function called on signin page only, for users who sign out of their
- * Google account.
- */
-function signinAndResume() {
-  gapi.auth.signIn({
-    'callback': function(authResult) {
-      if (authResult['status']['signed_in']) {
-        signin.next.update();
-      } else {
-        signin.displayErrorMessage('You need to grant this tutorial ' +
-            'permissions if you wish to continue.');
-      }
-    }
-  });
-}
 
 /**
  * Function to update the tutorial state based on the local storage.
@@ -1350,22 +1319,66 @@ function checkCorrectness(address) {
 }
 
 /**
- * Login and authorization submit function.
+ * Makes a login function.
+ * @param {boolean} popup Whether a popup should be shown.
+ * @param {{success: ?function(),
+ *          error: ?function(),
+ *          complete: ?function()}} resultHandler
+ *     Object on which to call either success() or error(), to report the login
+ *     result, followed by complete().
  */
-function authorizeUser() {
-  var me = this;
-  gapi.auth.signIn({
-    'callback': function(authResult) {
-      if (authResult['status']['signed_in']) {
-        $('.request').hide();
-        me.displaySuccessMessage();
+function makeLogin(popup, resultHandler) {
+  return function() {
+    var me = this;
+    gapi.auth.authorize({
+      client_id: $('meta[name="google-signin-clientid"]').attr('content'),
+      scope: $('meta[name="google-signin-scope"]').attr('content'),
+      immediate: !popup
+    }, function(authResult) {
+      if (authResult && authResult['status']['signed_in']) {
+        // The user is signed in and has authorised the application.
+        // We set a global variable with their authorization token.
+        userAuthorization = authResult['access_token'];
+        resultHandler.success && resultHandler.success();
       } else {
-        me.displayErrorMessage('You need to grant this tutorial permissions ' +
-            'if you wish to continue.');
+        resultHandler.error && resultHandler.error();
       }
-    }
-  });
+      resultHandler.complete && resultHandler.complete();
+    });
+  };
 }
+
+/**
+ * Login and authorization submit function.
+ * Called on the lesson 6 object.
+ */
+var authorizeUser = function() {
+  var me = this;
+  makeLogin(true, {
+    success: function() {
+      $('.request').hide();
+      me.displaySuccessMessage();
+    },
+    error: function() {
+      me.displayErrorMessage('You need to grant this tutorial permissions ' +
+          'if you wish to continue.');
+    }
+  })();
+};
+
+/**
+ * Function called on signin page only, for users who sign out of their
+ * Google account.
+ */
+var signinAndResume = makeLogin(true, {
+  success: function() {
+    signin.next.update();
+  },
+  error: function() {
+    signin.displayErrorMessage('You need to grant this tutorial ' +
+        'permissions if you wish to continue.');
+  }
+});
 
 /**
  * Create a free project submit function.
