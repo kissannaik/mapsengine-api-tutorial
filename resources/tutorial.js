@@ -1322,9 +1322,9 @@ function makeLogin(options) {
       // Don't think this is right.
       client_id: $('meta[name="google-signin-clientid"]').attr('content'),
       scope: $('meta[name="google-signin-scope"]').attr('content'),
-      immediate: true
+      immediate: false
     }, function(authResult) {
-      if (authResult['status']['signed_in']) {
+      if (authResult && authResult['status']['signed_in']) {
         // The user is signed in and has authorised the application.
         // We set a global variable with their authorization token.
         userAuthorization = authResult['access_token'];
