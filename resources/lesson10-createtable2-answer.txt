@@ -5,8 +5,6 @@ Below is an example of a possible request body, which will create an empty table
   "projectId": "{userProjectId}",
   "name": "Sydney Train Stations",
   "description": "A partial list of Sydney train stations.",
-  "draftAccessList": "Map Editors",
-  "publishedAccessList": "Map Viewers",
   "tags": [
     "station", "train", "Sydney"
   ],
